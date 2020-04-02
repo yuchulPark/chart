@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="jquery-ui-1.12.1/jquery-ui.min.css">
+<style type="text/css">
+	*{
+		margin:0px;
+		padding:0px;
+	}
+	body{
+		font: 62.5%
+	}
+	.item{
+		margin:3px;
+		padding:5px;
+	}
+	.item > img{
+		width:50px;
+		height:50px;
+	}
+	#wrap > div{
+		float: left;
+	}
+	#wrap{
+		overflow:hidden;
+	}
+	#dock{
+		position:fixed;
+		min-height:120px;
+		width:100%;
+		bottom:0px;
+		z-index:1;
+	}
+	#dock > div{
+		float:right;
+	}
+	#afterLogin{
+		visibility:hidden;
+	}
+</style>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script type="text/javascript" src="jquery-ui-1.12.1/jquery-ui.min.js"></script>
+<script type="text/javascript">
+	$(function(){
+		$.getJSON("/goodsList",function(arr){
+			$.each(arr, function(idx, g){
+				var item = $("<div class='ui-widget-content ui-corner-all item'></div>")
+				$(item).attr("gno", g.no)
+				var img = $("<img/>").attr("src", "img/" + g.fname)
+				var name = $("<p></p>").html(g.item)
+				var price = $("<p></p>").html(g.price)
+				var qty = $("<input type='number' class='qty'/>").val(1) // 디폴트 값은 1
+				$(qty).css("visibility", "hidden")
+				$(item).append(img, name, price, qty)
+				$("#wrap").append(item)
+			})
+			$("#wrap > div").draggable({
+				helper:"clone", // helper:"clone" -> 드래그해서 타 영역으로 이동 가능
+				zindex:100, scroll:false
+			})
+			$("#dock").droppable({
+				accept:"#wrap > div", drop:function(event, ui){ // 끌어올 수 있는 속성을 제한
+					$(ui.draggable).fadeOut(function(){ // 끌어온 그 요소는 점점점 사라지게 해줘
+						$(this).appendTo("#dock").fadeIn() // 점점 나타나게 해줘
+						$(this).find(".qty").css("visibility", "visible")
+					})
+				}
+			})
+			$("body").droppable({
+				accept:"#dock > div", drop:function(event, ui){
+					$(ui.draggable).fadeOut(function(){
+						$(this).appendTo("#wrap").fadeIn()
+					})
+				}
+			})
+		})
+		$("#addCart").click(function(){
+			var memberID = sessionStorage.getItem("memberID");
+			console.log(memberID + "|" + memberID + "|")
+			if(memberID == null){ // 로그인 안하고 눌렀어?
+				alert("로그인 하세요.")
+				return;
+			}
+			// 상품번호는 속성으로 안보이게 처리
+			var cartList = $("#dock > .item") // dock 안에서 클래스가 item인 것을 찾음
+			var i = 0;
+			$.each(cartList, function(idx, item){
+				// alert(item)
+				var gno = $(item).attr("gno")
+				//alert(gno)
+				var qty = $(item).find(".qty").val()
+				var id = sessionStorage.getItem("memberID")
+				var g = {gno:gno, qty:qty, id:id}
+				$.ajax("insertCart", {data:g, success:function(msg){
+					// db에 담았음
+					i++;
+					if(i == cartList.length){
+						alert("장바구니에 담았습니다.")
+					}
+				}})
+			})
+		})
+		$("#btnLogin").click(function(){
+			var member = $("#loginForm").serialize()
+			$.ajax("/login", {data:member, success:function(r){
+				if(r != "no"){
+					sessionStorage.setItem("memberID", r) // 상태 유지
+					alert("로그인 성공")
+					$("#loginOK").html(r)
+					
+					$("#afterLogin").css("visibility", "visible")
+					$("#beforeLogin").css("visibility", "hidden")
+				}
+			}})
+		})
+		$("#btnLogout").click(function(){
+			sessionStorage.removeItem("memberID")
+			$("#beforeLogin").css("visibility", "visible")
+			$("#afterLogin").css("visibility", "hidden")
+			$("#dock").empty()
+		})
+	})
+</script>
+<meta charset="EUC-KR">
+<title>Insert title here</title>
+</head>
+<body>
+	<div id="beforeLogin">
+		<form id="loginForm">
+			아이디 : <input type="text" name="id">
+			암호 : <input type="password" name="pwd">
+		</form>
+		<button id="btnLogin">로그인</button>
+	</div>
+	
+	<div id="afterLogin">
+		<span id="loginOK"></span>님 반갑습니다.&nbsp;&nbsp;
+		<button id="btnLogout">로그아웃</button>
+	</div>
+	
+	<div id="wrap"></div>
+	<button id="addCart">담기</button>
+	<div id="dock" class="ui-state-error"></div>
+</body>
+</html>

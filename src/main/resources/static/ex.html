@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="/jquery-ui-1.12.1/jquery-ui.min.css">
+<link rel="stylesheet" href="/Guriddo_jqGrid_JS_5.4.0-Trial/css/ui.jqgrid.css">
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script type="text/javascript" src="/Guriddo_jqGrid_JS_5.4.0-Trial/js/i18n/grid.locale-en.js"></script>
+<script type="text/javascript" src="/Guriddo_jqGrid_JS_5.4.0-Trial/js/jquery.jqGrid.min.js"></script>
+<script type="text/javascript" src="/jquery-ui-1.12.1/jquery-ui.min.js"></script>
+<script type="text/javascript">
+	$(function(){
+		var myDel = {
+				onclickSubmit:function(params){
+					var selectedRow = $("#grid").getGridParam("selrow") // 선택한 한 행을 가져옴
+					var rowData = $("#grid").getRowData(selectedRow);
+					return {bookid:rowData.bookid} // bookid는 rowData안에 있는 책번호를 반환함
+				}
+		} // 삭제 기능 적용하기 위해 만든 함수 (삭제할려면 bookid가 있어야 하기에)
+		
+		var grid = $("#grid").jqGrid({
+			url: "/getBook", // select를 위한 url
+			editurl: "/updateBook",
+			pager: "#pager", // 페이저로 설정할 노드명 (id를 pager로 설정해야 함)
+			rowNum:20, // 10씩 보여줌
+			rowList:[20,20,30], // 10개, 20개, 30개씩 보여줌
+			colNames:["bookid","bookname","publisher","price"], // 컬럼명 배열
+			colModel:[{name:"bookid", index:"bookid", width:50, editable:true},
+				{name:"bookname", index:"bookname", width:50, editable:true},
+				{name:"publisher", index:"publisher", width:50, editable:true},
+				{name:"price", index:"price", width:50, editable:true}
+			] // 컬럼명에 대한 이름, 인덱스, 길이 설정, 열을 어떤 형식으로 지정할 것인지 설정. colModel 옵션 속성은 배열이고, 각 배열 요소는 객체로 구성됨
+		});
+		$(grid).navGrid("#pager", {search:true, edit:true, add:true, del:true}, {}, {}, myDel)
+	})
+</script>
+<meta charset="EUC-KR">
+<title>Insert title here</title>
+</head>
+<body>
+	<table id="grid"></table>
+	<div id="pager"></div>
+</body>
+</html>

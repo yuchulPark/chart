@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+
+	#list{
+		padding:100px;
+	}
+	div{
+		float: left;
+	}
+</style>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+	$(function(){
+		var arr;
+		$.getJSON("goodsList", function(data){
+			arr = data;
+			listData();	
+		})	
+		function listData(){	
+			for(var i = 0; i < 4; i++){
+				var g = arr[i]
+				var div = $("<div></div>")
+				var img = $("<img/>").attr({src:"img/"+g.fname, width:"100", height:"100"})
+				$(img).hover(function(){
+					$(this).animate({width:"+=100", height:"+=100"}, "slow")
+				}, function(){
+					$(this).animate({width:"-=100", height:"-=100"}, "slow")
+				})
+				var p = $("<p></p>").html(g.item + "(" + g.price + "원)")
+				$(div).append(img, p)
+				$("#list").append(div)
+			}
+			$("#list").mouseleave(function(){
+				$("img").clearQueue();
+				$("img").animate({width:"100", height:"100"}, 1000)
+			})
+		}
+	}) // 웹 스토리지 - 클라이언트(브라우저) 측에 데이터를 저장할 수 있는 기능
+	// 로컬 스토리지 - 영구적으로 저장
+	// 세션 스토리지 - 브라우저 세션에서만 유지됨
+</script>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<div id="list"></div>
+</body>
+</html>

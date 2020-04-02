@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="deptEmp">
+	<select id="select" resultType="deptEmpVO">
+		select d.dname, count(e.eno) cnt from emp e, dept d where e.dno = d.dno group by dname
+	</select>
+</mapper>

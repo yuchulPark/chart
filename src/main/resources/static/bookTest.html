@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+	.active{
+		background: yellow;
+	}
+</style>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+	$(function(){
+		var arr;
+		var inputArr = $("input[type=text], [type=number]")
+		// 도서목록을 보여주는 ajax요청이 등록, 수정, 삭제때도 필요하니 이 기능을 메소드로 만들어놓고 호출
+		function listBook(){
+			$("#tb").html("<tr><th>도서번호</th><th>도서명</th><th>출판사</th><th>가격</th></tr>")	
+			// empty()하면 맨 위도 지워지므로
+			$.getJSON("listBook.do", function(data){
+				arr = data;
+				$.each(arr, function(idx, b){
+					var tr = $("<tr></tr>").attr("idx", idx)
+					$(tr).click(function(){
+						$("tr").removeClass("active")
+						$(tr).addClass("active")
+						var idx = $(this).attr("idx")
+						var book = arr[idx]
+						var i = 0;
+						$.each(book, function(key, value){
+							$(inputArr[i++]).val(value)
+						})
+					})
+					$.each(b, function(key, value){
+						// 내용은 value, bookid, bookname, publisher, price는 key
+						var td = $("<td></td>").html(value)
+						$(tr).append(td)
+					})
+					$("#tb").append(tr)
+				})
+			})
+		}
+		listBook();
+		
+		$("#btnAdd").click(function(){
+			var book = $("#form").serialize()
+			$.ajax("/insertBook.do", {data:book, success:function(r){
+				listBook();
+			}})
+		})
+		
+		$("#btnUpdate").click(function(){
+			var book = $("#form").serialize()
+			$.ajax("/updateBook.do", {data:book, success:function(r){
+				listBook()
+			}})
+		})
+		
+		$("#btnDelete").click(function(){
+			var book = $("#form").serialize()
+			$.ajax("/deleteBook.do", {data:book, success:function(r){
+				listBook()
+			}})
+		})
+	})
+</script>
+<meta charset="EUC-KR">
+<title>Insert title here</title>
+</head>
+<body>
+	<table id="tb" border="1">
+		<tr>
+			<th>도서번호</th>
+			<th>도서명</th>
+			<th>출판사</th>
+			<th>가격</th>
+		</tr>
+	</table>
+	<br>
+	<form id="form">
+		도서번호 : <input type="number" name="bookid" id="bookid"><br>
+		도서명 : <input type="text" name="bookname" id="bookname"><br>
+		출판사 : <input type="text" name="publisher" id="publisher"><br>
+		가격 : <input type="number" name="price" id="price"><br>
+	</form>
+	<input type="button" value="등록" id="btnAdd">
+	<input type="button" value="수정" id="btnUpdate">
+	<input type="button" value="삭제" id="btnDelete">
+</body>
+</html>

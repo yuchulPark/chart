@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+	$(function(){
+		$("#btnAjax").click(function(){
+			$.ajax("/hello.do", {success:function(data){
+				$("#msg").html(data)
+			}})
+		})
+	})
+</script>
+<meta charset="EUC-KR">
+<title>Insert title here</title>
+</head>
+<body>
+	<button id="btnAjax">ajax요청</button>
+	<h2 id="msg"></h2>
+</body>
+</html>

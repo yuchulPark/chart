@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+	.high_light{
+		background:gray;
+	}
+</style>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+	$(function(){
+		var arr;
+		$.ajax("mask.do",{success:function(data){
+			arr = data;
+			$.each(arr, function(idx, mask){
+				var li = $("<li></li>").html(mask.name + "(" + mask.price + "won)").attr("url",mask.url);
+				$("#maskList").append(li);
+				
+				$(li).hover(function(){
+					$(this).addClass("high_light")
+				}, function(){
+					$(this).removeClass("high_light")
+				})
+				
+				$(li).click(function(){
+					var base = "http://www.coupang.com/";
+					location.href = base + $(this).attr("url")
+				})
+			})
+		}})
+	})
+</script>	
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<ul id="maskList"></ul>
+</body>
+</html>

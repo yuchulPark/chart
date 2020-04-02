@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+	*{
+		margin:0px; padding:0px;
+	}
+	.animation_canvas{
+		overflow:hidden;
+		position:relative;
+		width:600px; height:400px;
+	}
+	.slider_panel{
+		/*width:3000px;*/
+		position:relative;
+	}
+	.slider_image{
+		float:left;
+		width:600px; height:400px;
+	}
+	.slider_text_panel{
+		position:absolute;
+		top:200px; left:50px;
+	}
+	.slider_text{
+		color:red;
+		position:absolute;
+		width:250px;
+		height:150px;
+	}
+	.control_panel{
+		position:absolute;
+		top:380px; left:270px;
+		height:13px;
+		overflow:hidden;
+	}
+	.control_button{
+		width:12px; height:46px;
+		position:relative;
+		float:left;
+		cursor:pointer;
+		background:url("/img/controll_button.png")
+	}
+	.control_button:hover{
+		top:-16p;
+	}
+	.control_button:active{
+		top:-31px;
+	}
+	.active{
+		top:-31px;
+	}
+</style>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+	$(function(){
+		// 슬라이더를 움직여주는 함수
+		function moveSlider(index){
+			// 슬라이더를 이동합니다.
+			var x = -(index * 600)
+			$(".slider_panel").animate({left:x}, "slow")
+			// 글자를 이동합니다.
+			$(".slider_text[data-index="+index+"]").show().animate({left:0}, "slow")
+			$(".slider_text[data-index!="+index+"]").hide().animate({left:-300}, "slow")
+			// control_button에 active 클래스를 부여하고, 제거합니다.
+			$(".control_button[data-index="+index+"]").addClass("active")
+			$(".control_button[data-index!="+index+"]").removeClass("active")
+		}
+		$.getJSON("/goodsList", function(data){
+			// 부모 크기 구하기
+			var w = data.length * 600
+			$(".slider_panel").css("width", w + "px")
+			
+			$.each(data, function(idx, g){
+				var img = $("<img class='slider_image'>").attr("src", "/img/" + g.fname)	
+				$(".slider_panel").append(img)
+				
+				// 텍스트 노드 생성
+				var div = $("<div class='slider_text'></div>").attr("data-index", idx).css("left", -300)
+				var name = $("<h1></h1>").html(g.item)
+				var price = $("<p></p>").html(g.price)
+				var detail = $("<p></p>").html(g.detail)
+				$(div).append(name, price, detail)
+				$(".slider_text_panel").append(div)
+				
+				// 컨트롤 버튼 생성
+				var cb = $("<div class='control_button'></div>").attr("data-index", idx)
+				$(".control_panel").append(cb)
+				$(cb).click(function(){
+					var index = $(this).attr("data-index")
+					moveSlider(index)
+				})
+			})
+			var i = Math.round(Math.random() * data.length - 1) // 19이하의 난수 발생
+			moveSlider(i)
+		})
+	})
+	/*
+	
+	구현 가능한 advice의 종류 - 대상 객체의 메소드를 실행하기 전/후에 원하는 기능을 삽입할 수 있기 때문에 around advice를 범용적으로 사용함 (얘만 joinpoint(매개변수)를 무조건 가져야 하고, 나머지는 선택적으로 갖는다.)
+	before advice - 대상 객체의 메소드 호출 전에 공통 기능을 수행
+	after returning advice - 대상 객체의 메소드가 예외 없이 실행한 이후에 공통 기능을 실행한다.
+	after throwing advice - 대상 객체의 메소드를 실행하는 도중 예외가 발생한 경우에 공통 기능을 수행
+	after advice - 대상 객체의 메소드를 실행하는 도중에 예외가 발생했는지의 여부와 상관없이 메소드를 실행 후 공통 기능을 실행
+	around advice - 대상 객체의 메소드 실행 전, 후, 예외 발생 시점에 공통기능을 실행
+	
+	*/
+</script>
+<meta charset="EUC-KR">
+<title>Insert title here</title>
+</head>
+<body>
+	<h1>Image Header</h1>
+	<div class="animation_canvas">
+		<div class="slider_panel"></div>
+		<div class="slider_text_panel"></div>
+		<div class="control_panel"></div>
+	</div>
+	<h1>Image Header</h1>
+</body>
+</html>

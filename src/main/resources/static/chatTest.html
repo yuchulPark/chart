@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+	$(function(){
+		// 내 글 등록
+		$("#write").click(function(){
+			var chat = $("#f").serialize()
+			$.ajax("chatInsert", {data:chat, function(r){
+				
+			}})
+		})
+		
+		// 대화목록 읽어오기
+		setInterval(function(){
+			$("#list").empty() // 기존에 있는걸 삭제
+			var today = new Date();
+			$.getJSON("chatList?a=" + today, function(data){ // 다른 요청인걸 구분하기 위해서 쿼리스트링 사용
+				$.each(data, function(idx, chat){
+					var p = $("<p></p>").html(chat.name + " : " + chat.message)
+					$("#list").append(p)
+				})
+			})
+		}, 1000)
+	})
+</script>
+<meta charset="EUC-KR">
+<title>Insert title here</title>
+</head>
+<body>
+	<h2>그룹 채팅</h2>
+	<hr>
+	<form id="f">
+		<p>
+			<label for="name">닉네임</label>
+			<input type="text" name="name" id="name"><br>
+		</p>
+		<p>
+			<label for="message">메시지</label>
+			<textarea rows="5" cols="60" name="message" id="message"></textarea>
+		</p>
+	</form>
+	<br>
+	<button id="write">글쓰기</button>
+	<br>
+	<div id="list"></div>
+</body>
+</html>
